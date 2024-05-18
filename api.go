@@ -13,7 +13,6 @@ type ApiServer struct {
 }
 
 func NewApiServer(addr string, store Store) *ApiServer {
-
 	return &ApiServer{
 		address: addr,
 		store:   store,
@@ -23,6 +22,9 @@ func NewApiServer(addr string, store Store) *ApiServer {
 func (s *ApiServer) Serve() {
 	router := mux.NewRouter()
 	subRouter := router.PathPrefix("api/v1").Subrouter()
+
+	taskService := NewTaskService(s.store)
+	taskService.RegisterRoutes(router)
 
 	log.Println("Starting api server at", s.address)
 
