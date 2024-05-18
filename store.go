@@ -5,7 +5,8 @@ import (
 )
 
 type Store interface {
-	CreateUser() error
+	CreateUser(t *User) (*User, error)
+	CreateTask(t *Task) (*Task, error)
 }
 
 type Repository struct {
@@ -18,6 +19,21 @@ func NewStore(db *sql.DB) *Repository {
 	}
 }
 
-func (s *Repository) CreateUser() error {
-	return nil
+func (s *Repository) CreateUser(u *User) (*User, error) {
+	return nil, nil
+}
+
+func (s *Repository) CreateTask(t *Task) (*Task, error) {
+	rows, err := s.db.Exec("INSERT INTO task (name, status, project_id, assigned_to) VALUES (?, ?, ?, ?)", t.Name, t.Status, t.ProjectId, t.AssignedToId)
+	if err != nil {
+		return nil, err
+	}
+
+	id, err := rows.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	t.Id = id
+
+	return t, nil
 }

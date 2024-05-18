@@ -29,13 +29,13 @@ func NewMysqlStorage(cfg mysql.Config) *MysqlStorage {
 
 func (s *MysqlStorage) Init() (*sql.DB, error) {
 	//initialize tables
+	if err := s.createUserTable(); err != nil {
+		return nil, err
+	}
 	if err := s.createProjectTable(); err != nil {
 		return nil, err
 	}
 	if err := s.createTaskTable(); err != nil {
-		return nil, err
-	}
-	if err := s.createUserTable(); err != nil {
 		return nil, err
 	}
 
@@ -43,15 +43,14 @@ func (s *MysqlStorage) Init() (*sql.DB, error) {
 }
 
 func (s *MysqlStorage) createProjectTable() error {
-	_, err := s.db.Exec((`
+	_, err := s.db.Exec(`
 		CREATE TABLE IF NOT EXISTS project (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255) NOT NULL,
 			created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-			PRIPARY KEY (id)
-		) ENGINE= InnoDB DEFAULT CHARSET=utf8
-	`))
+			PRIMARY KEY (id)
+		) ENGINE=InnoDB CHARACTER SET utf8;
+	`)
 	if err != nil {
 		return err
 	}
@@ -60,7 +59,7 @@ func (s *MysqlStorage) createProjectTable() error {
 }
 
 func (s *MysqlStorage) createTaskTable() error {
-	_, err := s.db.Exec((`
+	_, err := s.db.Exec(`
 		CREATE TABLE IF NOT EXISTS task (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255) NOT NULL,
@@ -68,12 +67,11 @@ func (s *MysqlStorage) createTaskTable() error {
 			project_id INT UNSIGNED NOT NULL,
 			assigned_to_id INT UNSIGNED NOT NULL,
 			created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-			PRIPARY KEY (id),
+			PRIMARY KEY (id),
 			FOREIGN KEY (assigned_to_id) REFERENCES user(id),
 			FOREIGN KEY (project_id) REFERENCES project(id)
-		) ENGINE= InnoDB DEFAULT CHARSET=utf8
-	`))
+		) ENGINE=InnoDB CHARACTER SET utf8;
+	`)
 	if err != nil {
 		return err
 	}
@@ -82,7 +80,7 @@ func (s *MysqlStorage) createTaskTable() error {
 }
 
 func (s *MysqlStorage) createUserTable() error {
-	_, err := s.db.Exec((`
+	_, err := s.db.Exec(`
 		CREATE TABLE IF NOT EXISTS user (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			email VARCHAR(255) NOT NULL,
@@ -90,11 +88,10 @@ func (s *MysqlStorage) createUserTable() error {
 			last_name VARCHAR(255) NOT NULL,
 			password VARCHAR(255) NOT NULL,
 			created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-			PRIPARY KEY (id),
+			PRIMARY KEY (id),
 			UNIQUE KEY (email)
-		) ENGINE= InnoDB DEFAULT CHARSET=utf8
-	`))
+		) ENGINE=InnoDB CHARACTER SET utf8;
+	`)
 	if err != nil {
 		return err
 	}
