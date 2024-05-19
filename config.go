@@ -14,7 +14,7 @@ type Config struct {
 	JWTSecret string
 }
 
-var Encs = initConfig()
+var Envs = initConfig()
 
 func initConfig() Config {
 	return Config{

@@ -22,12 +22,10 @@ type Project struct {
 }
 
 type User struct {
-	Id           int64     `json:"id"`
-	Email        string    `json:"email"`
-	FirstName    string    `json:"firstName"`
-	LastName     string    `json:"lastName"`
-	Status       string    `json:"status"`
-	ProjectId    int64     `json:"projectId"`
-	AssignedToId int64     `json:"assignedToId"`
-	Created      time.Time `json:"created"`
+	Id        int64     `json:"id"`
+	Email     string    `json:"email"`
+	FirstName string    `json:"firstName"`
+	LastName  string    `json:"lastName"`
+	Password  int64     `json:"password"`
+	Created   time.Time `json:"created"`
 }

@@ -8,6 +8,7 @@ type Store interface {
 	CreateUser(t *User) (*User, error)
 	CreateTask(t *Task) (*Task, error)
 	GetTask(id string) (*Task, error)
+	GetUserById(id string) (*User, error)
 }
 
 type Repository struct {
@@ -47,4 +48,14 @@ func (s *Repository) GetTask(id string) (*Task, error) {
 	}
 
 	return &t, nil
+}
+
+func (s *Repository) GetUserById(id string) (*User, error) {
+	var u User
+	err := s.db.QueryRow("SELECT id, email, firstName, lastName, created FROM user WHERE id = ?", id).Scan(&u.Id, &u.FirstName, &u.LastName, &u.Created)
+	if err != nil {
+		return nil, err
+	}
+
+	return &u, nil
 }
