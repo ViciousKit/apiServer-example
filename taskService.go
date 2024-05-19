@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -23,19 +22,20 @@ func NewTaskService(s Store) *TaskService {
 }
 
 func (s *TaskService) RegisterRoutes(r *mux.Router) {
-	r.HandleFunc("/tasks", s.handleCreateTask).Methods("POST")
+	r.HandleFunc("/task", s.handleCreateTask).Methods("POST")
 	r.HandleFunc("/tasks/{id}", s.handleGetTask).Methods("GET")
 }
 
 func (s *TaskService) handleCreateTask(w http.ResponseWriter, r *http.Request) {
-	log.Println("handleCreateTask")
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
+
 	if err != nil {
 		WriteJson(w, http.StatusBadRequest, ErrorResponse{Error: "Invalid request payload"})
 
 		return
 	}
+
 	var task *Task
 	err = json.Unmarshal(body, &task)
 	if err != nil {
@@ -44,7 +44,7 @@ func (s *TaskService) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = validateTaskPayload(task); err != nil {
+	if err := validateTaskPayload(task); err != nil {
 		WriteJson(w, http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 
 		return
@@ -75,5 +75,19 @@ func validateTaskPayload(task *Task) error {
 }
 
 func (s *TaskService) handleGetTask(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		WriteJson(w, http.StatusBadRequest, ErrorResponse{Error: "id required"})
 
+		return
+	}
+	t, err := s.store.GetTask(id)
+	if err != nil {
+		WriteJson(w, http.StatusInternalServerError, ErrorResponse{Error: "task not found"})
+
+		return
+	}
+
+	WriteJson(w, http.StatusOK, t)
 }

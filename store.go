@@ -7,6 +7,7 @@ import (
 type Store interface {
 	CreateUser(t *User) (*User, error)
 	CreateTask(t *Task) (*Task, error)
+	GetTask(id string) (*Task, error)
 }
 
 type Repository struct {
@@ -36,4 +37,14 @@ func (s *Repository) CreateTask(t *Task) (*Task, error) {
 	t.Id = id
 
 	return t, nil
+}
+
+func (s *Repository) GetTask(id string) (*Task, error) {
+	var t Task
+	err := s.db.QueryRow("SELECT id, name, status, project_id, assigned_to, created FROM task WHERE id = ?", id).Scan(&t.Id, &t.Name, &t.Status, &t.ProjectId, &t.AssignedToId, &t.Created)
+	if err != nil {
+		return nil, err
+	}
+
+	return &t, nil
 }
