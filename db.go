@@ -64,12 +64,12 @@ func (s *MysqlStorage) createTaskTable() error {
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255) NOT NULL,
 			status ENUM('TODO', 'IN_PROGRESS', 'IN_TESTING', 'DONE') NOT NULL DEFAULT 'TODO',
-			project_id INT UNSIGNED NOT NULL,
-			assigned_to_id INT UNSIGNED NOT NULL,
+			projectId INT UNSIGNED NOT NULL,
+			assignedToId INT UNSIGNED NOT NULL,
 			created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (id),
-			FOREIGN KEY (assigned_to_id) REFERENCES user(id),
-			FOREIGN KEY (project_id) REFERENCES project(id)
+			FOREIGN KEY (assignedToId) REFERENCES user(id),
+			FOREIGN KEY (projectId) REFERENCES project(id)
 		) ENGINE=InnoDB CHARACTER SET utf8;
 	`)
 	if err != nil {
@@ -84,8 +84,8 @@ func (s *MysqlStorage) createUserTable() error {
 		CREATE TABLE IF NOT EXISTS user (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			email VARCHAR(255) NOT NULL,
-			first_name VARCHAR(255) NOT NULL,
-			last_name VARCHAR(255) NOT NULL,
+			firstName VARCHAR(255) NOT NULL,
+			lastName VARCHAR(255) NOT NULL,
 			password VARCHAR(255) NOT NULL,
 			created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (id),

@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/golang-jwt/jwt"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func WithJWTAuth(handlerFunc http.HandlerFunc, store Store) http.HandlerFunc {
@@ -13,7 +16,7 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store Store) http.HandlerFunc {
 		tokenString := GetTokenFromRequest(r)
 		token, err := validateToken(tokenString)
 		if err != nil || !token.Valid {
-			log.Println("failed to auth token")
+			log.Println("failed to auth token", err)
 			WriteJson(w, http.StatusUnauthorized, ErrorResponse{Error: fmt.Errorf("permission denied").Error()})
 
 			return
@@ -58,4 +61,27 @@ func validateToken(token string) (*jwt.Token, error) {
 
 		return []byte(secret), nil
 	})
+}
+
+func CreateJWT(secret []byte, id int64) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"userID":    strconv.Itoa(int(id)),
+		"expiresAt": time.Now().Add(time.Hour * 24 * 120).Unix(),
+	})
+
+	tokenString, err := token.SignedString(secret)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
+func HashPassword(pw string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hash), nil
 }

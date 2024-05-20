@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"log"
 )
 
 type Store interface {
@@ -22,7 +23,18 @@ func NewStore(db *sql.DB) *Repository {
 }
 
 func (s *Repository) CreateUser(u *User) (*User, error) {
-	return nil, nil
+	rows, err := s.db.Exec("INSERT INTO user (email, firstName, lastName, password) VALUES (?, ?, ?, ?)", u.Email, u.FirstName, u.LastName, u.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	id, err := rows.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	u.Id = id
+
+	return u, nil
 }
 
 func (s *Repository) CreateTask(t *Task) (*Task, error) {
@@ -42,7 +54,7 @@ func (s *Repository) CreateTask(t *Task) (*Task, error) {
 
 func (s *Repository) GetTask(id string) (*Task, error) {
 	var t Task
-	err := s.db.QueryRow("SELECT id, name, status, project_id, assigned_to, created FROM task WHERE id = ?", id).Scan(&t.Id, &t.Name, &t.Status, &t.ProjectId, &t.AssignedToId, &t.Created)
+	err := s.db.QueryRow("SELECT id, name, status, projectId, assignedTo, created FROM task WHERE id = ?", id).Scan(&t.Id, &t.Name, &t.Status, &t.ProjectId, &t.AssignedToId, &t.Created)
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +63,7 @@ func (s *Repository) GetTask(id string) (*Task, error) {
 }
 
 func (s *Repository) GetUserById(id string) (*User, error) {
+	log.Println("search user by id", id)
 	var u User
 	err := s.db.QueryRow("SELECT id, email, firstName, lastName, created FROM user WHERE id = ?", id).Scan(&u.Id, &u.FirstName, &u.LastName, &u.Created)
 	if err != nil {
