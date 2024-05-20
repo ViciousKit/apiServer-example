@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"log"
 )
 
 type Store interface {
@@ -63,12 +62,8 @@ func (s *Repository) GetTask(id string) (*Task, error) {
 }
 
 func (s *Repository) GetUserById(id string) (*User, error) {
-	log.Println("search user by id", id)
 	var u User
-	err := s.db.QueryRow("SELECT id, email, firstName, lastName, created FROM user WHERE id = ?", id).Scan(&u.Id, &u.FirstName, &u.LastName, &u.Created)
-	if err != nil {
-		return nil, err
-	}
+	err := s.db.QueryRow("SELECT id, email, firstName, lastName, created FROM user WHERE id = ?", id).Scan(&u.Id, &u.Email, &u.FirstName, &u.LastName, &u.Created)
 
-	return &u, nil
+	return &u, err
 }

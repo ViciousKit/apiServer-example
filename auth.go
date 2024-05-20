@@ -15,8 +15,15 @@ func WithJWTAuth(handlerFunc http.HandlerFunc, store Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenString := GetTokenFromRequest(r)
 		token, err := validateToken(tokenString)
-		if err != nil || !token.Valid {
-			log.Println("failed to auth token", err)
+		if err != nil {
+			log.Println("failed to validate token", err)
+			WriteJson(w, http.StatusUnauthorized, ErrorResponse{Error: fmt.Errorf("permission denied").Error()})
+
+			return
+		}
+
+		if !token.Valid {
+			log.Println("invalid token", err)
 			WriteJson(w, http.StatusUnauthorized, ErrorResponse{Error: fmt.Errorf("permission denied").Error()})
 
 			return
